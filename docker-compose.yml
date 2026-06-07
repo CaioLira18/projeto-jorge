@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  users:
+    build: ./users
+    ports:
+      - "5001:5001"
+    environment:
+      - JWT_SECRET=minha-chave-secreta-super-segura-para-jwt-2024
+    volumes:
+      - users-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  products-primary:
+    build: ./products
+    ports:
+      - "5002:5002"
+    environment:
+      - SERVER_PORT=5002
+      - JWT_SECRET=minha-chave-secreta-super-segura-para-jwt-2024
+      - REPLICA_URL=http://products-replica:5012
+      - REPLICA_ENABLED=true
+    volumes:
+      - products-primary-data:/app/data
+    depends_on:
+      - users
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  products-replica:
+    build: ./products
+    ports:
+      - "5012:5012"
+    environment:
+      - SERVER_PORT=5012
+      - JWT_SECRET=minha-chave-secreta-super-segura-para-jwt-2024
+      - REPLICA_URL=http://products-primary:5002
+      - REPLICA_ENABLED=false
+    volumes:
+      - products-replica-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5012/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  orders:
+    build: ./orders
+    ports:
+      - "5003:5003"
+    environment:
+      - JWT_SECRET=minha-chave-secreta-super-segura-para-jwt-2024
+      - PRODUCTS_URL=http://products-primary:5002
+    volumes:
+      - orders-data:/app/data
+    depends_on:
+      - products-primary
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5003/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  gateway:
+    build: ./gateway
+    ports:
+      - "5000:5000"
+    environment:
+      - USERS_URL=http://users:5001
+      - PRODUCTS_PRIMARY_URL=http://products-primary:5002
+      - PRODUCTS_REPLICA_URL=http://products-replica:5012
+      - ORDERS_URL=http://orders:5003
+    depends_on:
+      - users
+      - products-primary
+      - products-replica
+      - orders
+
+volumes:
+  users-data:
+  products-primary-data:
+  products-replica-data:
+  orders-data:
