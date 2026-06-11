@@ -1,10 +1,23 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
 import './index.css'
-import App from './App.jsx'
+import './css/Login.css'
+import './css/Register.css'
+
+import App from './App'
+import { AuthProvider, CartProvider, ToastProvider } from './pages/Index'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
-  </StrictMode>,
+    <BrowserRouter>
+      <AuthProvider>
+        <CartProvider>
+          <ToastProvider>
+            <App />
+          </ToastProvider>
+        </CartProvider>
+      </AuthProvider>
+    </BrowserRouter>
+  </StrictMode>
 )
