@@ -51,4 +51,17 @@ public class ProductRepository {
         }
         return product;
     }
+
+    public synchronized void deleteById(String id) {
+        List<Product> products = findAll();
+        boolean removed = products.removeIf(p -> p.getId().equals(id));
+        if (!removed) {
+            throw new RuntimeException("Produto não encontrado: " + id);
+        }
+        try {
+            mapper.writerWithDefaultPrettyPrinter().writeValue(getFile(), products);
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao remover produto", e);
+        }
+    }
 }

@@ -1,5 +1,5 @@
 import React from 'react'
-import { useCart, useAuth } from '../context'
+import { useCart, useAuth } from './Index'
 import { useNavigate } from 'react-router-dom'
 
 export default function Cart() {
@@ -28,7 +28,11 @@ export default function Cart() {
             ? <p className="text-muted text-center mt-4">Carrinho vazio</p>
             : items.map(item => (
               <div className="cart-item" key={item.id}>
-                <div style={{fontSize:28}}>📦</div>
+                <div style={{ width: 48, height: 48, borderRadius: 8, overflow: 'hidden', flexShrink: 0, background: 'var(--surface-2, #222)' }}>
+                  {item.imageUrl
+                    ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    : <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: 24 }}>📦</span>}
+                </div>
                 <div className="cart-item-info">
                   <div style={{fontWeight:600,fontSize:14}}>{item.name}</div>
                   <div className="text-accent" style={{fontWeight:700}}>
@@ -62,5 +66,3 @@ export default function Cart() {
     </>
   )
 }
-
-export default Cart

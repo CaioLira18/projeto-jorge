@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import './css/Login.css'
 import './css/Register.css'
+import './css/ProductCRUD.css'
 
 import App from './App'
 import { AuthProvider, CartProvider, ToastProvider } from './pages/Index'

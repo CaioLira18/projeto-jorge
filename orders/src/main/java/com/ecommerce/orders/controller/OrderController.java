@@ -28,6 +28,7 @@ public class OrderController {
     }
 
     @PostMapping("/orders")
+    @SuppressWarnings("unchecked")
     public ResponseEntity<?> createOrder(
             @RequestBody Map<String, Object> body,
             @RequestHeader(value = "Authorization", required = false) String authHeader) {
@@ -39,20 +40,25 @@ public class OrderController {
 
         try {
             String userId = claims.getSubject();
-            String productId = (String) body.get("productId");
-            int quantity = ((Number) body.getOrDefault("quantity", 1)).intValue();
+            List<Map<String, Object>> items = (List<Map<String, Object>>) body.get("items");
+            String paymentMethod = (String) body.get("paymentMethod");
 
-            if (productId == null) {
-                return ResponseEntity.badRequest().body(Map.of("error", "productId é obrigatório"));
+            if (items == null || items.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "items é obrigatório e não pode ser vazio"));
+            }
+            if (paymentMethod == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "paymentMethod é obrigatório"));
             }
 
-            Order order = orderService.createOrder(userId, productId, quantity);
+            Order order = orderService.createOrder(userId, items, paymentMethod);
             return ResponseEntity.status(HttpStatus.CREATED).body(order);
 
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Corpo da requisição inválido"));
         }
     }
 
@@ -69,7 +75,6 @@ public class OrderController {
         String requesterId = claims.getSubject();
         String role = (String) claims.get("role");
 
-        // Usuário só vê os próprios pedidos, admin vê de qualquer um
         if (!requesterId.equals(userId) && !"admin".equals(role)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Acesso negado"));
         }

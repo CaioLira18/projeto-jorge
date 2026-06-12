@@ -59,6 +59,34 @@ public class ReplicationService {
         }
     }
 
+    /**
+     * Propaga a exclusão de um produto para a réplica par.
+     * Retorna true se propagou com sucesso, false caso contrário.
+     */
+    public boolean replicateDelete(String productId) {
+        if (!replicaEnabled) return true;
+
+        try {
+            String url = replicaUrl + "/internal/products/" + productId;
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Void> request = new HttpEntity<>(headers);
+            ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.DELETE, request, Map.class);
+
+            boolean success = response.getStatusCode().is2xxSuccessful();
+            if (success) {
+                log.info("[REPLICAÇÃO] Produto {} removido com sucesso na réplica {}", productId, replicaUrl);
+            } else {
+                log.error("[REPLICAÇÃO] Falha ao remover produto {} na réplica {}", productId, replicaUrl);
+            }
+            return success;
+        } catch (Exception e) {
+            log.error("[REPLICAÇÃO] Réplica indisponível em {}: {}", replicaUrl, e.getMessage());
+            return false;
+        }
+    }
+
     public boolean isReplicaAvailable() {
         if (!replicaEnabled) return true;
         try {

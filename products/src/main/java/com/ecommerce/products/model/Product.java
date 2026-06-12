@@ -5,18 +5,20 @@ public class Product {
     private String name;
     private String description;
     private double price;
+    private String imageUrl;
     private int stock;
     private long createdAt;
 
     public Product() {}
 
-    public Product(String id, String name, String description, double price, int stock, long createdAt) {
+    public Product(String id, String name, String description, double price, int stock, long createdAt, String imageUrl) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
         this.stock = stock;
         this.createdAt = createdAt;
+        this.imageUrl = imageUrl;
     }
 
     public String getId() { return id; }
@@ -31,4 +33,13 @@ public class Product {
     public void setStock(int stock) { this.stock = stock; }
     public long getCreatedAt() { return createdAt; }
     public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+    
 }

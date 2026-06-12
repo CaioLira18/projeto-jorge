@@ -54,7 +54,19 @@ export default function Home() {
             : <div className="grid-4">
                 {filtered.map((p, i) => (
                   <div className="product-card" key={p.id}>
-                    <div className="product-img">{EMOJI[i % EMOJI.length]}</div>
+                    <div className="product-img">
+                      {p.imageUrl
+                        ? <img
+                            src={p.imageUrl}
+                            alt={p.name}
+                            style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:'inherit'}}
+                            onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = 'flex' }}
+                          />
+                        : null}
+                      <span style={{display: p.imageUrl ? 'none' : 'flex', alignItems:'center', justifyContent:'center', width:'100%', height:'100%'}}>
+                        {EMOJI[i % EMOJI.length]}
+                      </span>
+                    </div>
                     <div className="product-info">
                       <div className="product-name">{p.name}</div>
                       <div className="text-muted" style={{fontSize:13,marginTop:2,marginBottom:8}}>

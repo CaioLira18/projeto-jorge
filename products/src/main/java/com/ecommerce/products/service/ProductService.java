@@ -32,8 +32,7 @@ public class ProductService {
      * Cria produto com consistência forte:
      * salva localmente E propaga à réplica antes de confirmar.
      */
-    public Product create(String name, String description, double price, int stock) {
-        // 1. Verifica réplica antes de salvar
+    public Product create(String name, String description, double price, int stock, String imageUrl) {
         if (!replication.isReplicaAvailable()) {
             throw new IllegalStateException("Réplica indisponível — escrita rejeitada para manter consistência");
         }
@@ -44,19 +43,61 @@ public class ProductService {
                 description,
                 price,
                 stock,
-                System.currentTimeMillis()
+                System.currentTimeMillis(),
+                imageUrl
         );
 
-        // 2. Salva localmente
         repository.save(product);
 
-        // 3. Propaga à réplica (consistência forte: 2-of-2)
         boolean replicated = replication.replicateWrite(product);
         if (!replicated) {
             throw new IllegalStateException("Falha na replicação — operação cancelada");
         }
 
         return product;
+    }
+
+    /**
+     * Atualiza produto existente e propaga à réplica.
+     */
+    public Product update(String id, String name, String description, double price, int stock, String imageUrl) {
+        Product product = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+
+        if (!replication.isReplicaAvailable()) {
+            throw new IllegalStateException("Réplica indisponível — escrita rejeitada para manter consistência");
+        }
+
+        product.setName(name);
+        product.setDescription(description);
+        product.setPrice(price);
+        product.setStock(stock);
+        product.setImageUrl(imageUrl);
+
+        repository.save(product);
+
+        boolean replicated = replication.replicateWrite(product);
+        if (!replicated) {
+            throw new IllegalStateException("Falha na replicação — operação cancelada");
+        }
+
+        return product;
+    }
+
+    /**
+     * Remove produto e propaga exclusão à réplica.
+     */
+    public void delete(String id) {
+        if (!replication.isReplicaAvailable()) {
+            throw new IllegalStateException("Réplica indisponível — escrita rejeitada para manter consistência");
+        }
+
+        repository.deleteById(id);
+
+        boolean replicated = replication.replicateDelete(id);
+        if (!replicated) {
+            throw new IllegalStateException("Falha na replicação da exclusão — verifique consistência manualmente");
+        }
     }
 
     /**

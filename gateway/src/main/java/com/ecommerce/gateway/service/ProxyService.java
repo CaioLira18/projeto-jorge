@@ -47,11 +47,11 @@ public class ProxyService {
     }
 
     /**
-     * Round-robin entre réplicas primária e secundária do serviço de produtos.
-     * Se a réplica selecionada estiver DOWN, tenta a outra.
+     * Leituras: round-robin entre primária e réplica.
+     * Se a selecionada estiver DOWN, tenta a outra.
      */
-    public ResponseEntity<String> proxyProducts(String path, HttpMethod method,
-                                                 String body, HttpServletRequest request) {
+    public ResponseEntity<String> proxyProductsRead(String path, HttpMethod method,
+                                                     String body, HttpServletRequest request) {
         int counter = roundRobinCounter.getAndIncrement();
         boolean primaryFirst = (counter % 2 == 0);
 
@@ -61,14 +61,30 @@ public class ProxyService {
         String secondUrl = primaryFirst ? productsReplicaUrl : productsPrimaryUrl;
 
         if (registry.isUp(firstKey)) {
-            log.debug("[PROXY] Products → {} (round-robin)", firstKey);
+            log.debug("[PROXY] Products read → {} (round-robin)", firstKey);
             return proxy(firstKey, firstUrl, path, method, body, request);
         } else if (registry.isUp(secondKey)) {
-            log.warn("[PROXY] Products → {} (failover, {} está DOWN)", secondKey, firstKey);
+            log.warn("[PROXY] Products read → {} (failover, {} está DOWN)", secondKey, firstKey);
             return proxy(secondKey, secondUrl, path, method, body, request);
         } else {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                     .body("{\"error\":\"Serviço de produtos indisponível (ambas as réplicas DOWN)\"}");
+        }
+    }
+
+    /**
+     * Escritas: sempre na primária (que replica para a secundária).
+     * Se a primária estiver DOWN, rejeita — não escreve na réplica diretamente.
+     */
+    public ResponseEntity<String> proxyProductsWrite(String path, HttpMethod method,
+                                                      String body, HttpServletRequest request) {
+        if (registry.isUp("products-primary")) {
+            log.debug("[PROXY] Products write → products-primary");
+            return proxy("products-primary", productsPrimaryUrl, path, method, body, request);
+        } else {
+            log.error("[PROXY] products-primary está DOWN — escrita rejeitada");
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body("{\"error\":\"Serviço de produtos indisponível para escrita\"}");
         }
     }
 
@@ -86,7 +102,6 @@ public class ProxyService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // Repassa o token JWT para os serviços internos
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null) {
             headers.set("Authorization", authHeader);

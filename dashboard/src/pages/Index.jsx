@@ -26,8 +26,14 @@ const CartCtx = createContext()
 export const useCart = () => useContext(CartCtx)
 
 export function CartProvider({ children }) {
-  const [items, setItems] = useState([])
+  const [items, setItems] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('cart')) || [] } catch { return [] }
+  })
   const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(items))
+  }, [items])
 
   const add = (product) => setItems(prev => {
     const ex = prev.find(i => i.id === product.id)
@@ -42,7 +48,10 @@ export function CartProvider({ children }) {
     setItems(prev => prev.map(i => i.id === id ? { ...i, qty } : i))
   }
 
-  const clear = () => setItems([])
+  const clear = () => {
+    setItems([])
+    localStorage.removeItem('cart')
+  }
 
   const total = items.reduce((s, i) => s + i.price * i.qty, 0)
   const count = items.reduce((s, i) => s + i.qty, 0)

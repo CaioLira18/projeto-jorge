@@ -64,18 +64,32 @@ public class GatewayController {
     // ─── Rotas de Produtos ────────────────────────────────────────────────
     @GetMapping("/products")
     public ResponseEntity<String> listProducts(HttpServletRequest req) {
-        return proxyService.proxyProducts("/products", HttpMethod.GET, null, req);
+        return proxyService.proxyProductsRead("/products", HttpMethod.GET, null, req);
     }
 
     @GetMapping("/products/{id}")
     public ResponseEntity<String> getProduct(@PathVariable String id, HttpServletRequest req) {
-        return proxyService.proxyProducts("/products/" + id, HttpMethod.GET, null, req);
+        return proxyService.proxyProductsRead("/products/" + id, HttpMethod.GET, null, req);
     }
 
     @PostMapping("/products")
     public ResponseEntity<String> createProduct(@RequestBody(required = false) String body, HttpServletRequest req) {
         // Escrita sempre vai para a primária (que replica para a secundária)
-        return proxyService.proxyProducts("/products", HttpMethod.POST, body, req);
+        return proxyService.proxyProductsWrite("/products", HttpMethod.POST, body, req);
+    }
+
+    @PutMapping("/products/{id}")
+    public ResponseEntity<String> updateProduct(@PathVariable String id,
+                                                @RequestBody(required = false) String body,
+                                                HttpServletRequest req) {
+        // Escrita sempre vai para a primária (que replica para a secundária)
+        return proxyService.proxyProductsWrite("/products/" + id, HttpMethod.PUT, body, req);
+    }
+
+    @DeleteMapping("/products/{id}")
+    public ResponseEntity<String> deleteProduct(@PathVariable String id, HttpServletRequest req) {
+        // Escrita sempre vai para a primária (que replica para a secundária)
+        return proxyService.proxyProductsWrite("/products/" + id, HttpMethod.DELETE, null, req);
     }
 
     // ─── Rotas de Pedidos ─────────────────────────────────────────────────

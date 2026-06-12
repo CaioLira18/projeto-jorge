@@ -17,10 +17,16 @@ function Navbar() {
           <Link to="/" className="btn btn-ghost btn-sm">Produtos</Link>
           {user?.role === 'admin' && (
             <>
-              <Link to="/admin/products/new" className="btn btn-ghost btn-sm">+ Produto</Link>
+              <Link to="/admin/produtos" className="btn btn-ghost btn-sm">+ Produto</Link>
               <Link to="/admin/dashboard" className="btn btn-ghost btn-sm">Dashboard</Link>
             </>
           )}
+          
+          <Link to="/cart">
+            <button className="btn btn-ghost btn-sm" onClick={() => setOpen(true)}>
+              Seu carrinho {count > 0 && <span className="text-accent">{count}x</span>}
+            </button>
+          </Link>
           {user ? (
             <>
               <span className="text-muted hide-mobile">Olá, {user.email?.split('@')[0]}</span>
@@ -33,9 +39,6 @@ function Navbar() {
               <Link to="/register" className="btn btn-primary btn-sm">Cadastrar</Link>
             </>
           )}
-          <button className="btn btn-ghost btn-sm" onClick={() => setOpen(true)}>
-            🛒 {count > 0 && <span className="text-accent">{count}</span>}
-          </button>
         </div>
       </div>
     </nav>

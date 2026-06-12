@@ -1,25 +1,25 @@
 package com.ecommerce.orders.model;
 
+import java.util.List;
+
 public class Order {
     private String id;
     private String userId;
-    private String productId;
-    private String productName;
-    private int quantity;
+    private List<OrderItem> items;
     private double totalPrice;
+    private String paymentMethod;
     private String status;
     private long createdAt;
 
     public Order() {}
 
-    public Order(String id, String userId, String productId, String productName,
-                 int quantity, double totalPrice, String status, long createdAt) {
+    public Order(String id, String userId, List<OrderItem> items, double totalPrice,
+                  String paymentMethod, String status, long createdAt) {
         this.id = id;
         this.userId = userId;
-        this.productId = productId;
-        this.productName = productName;
-        this.quantity = quantity;
+        this.items = items;
         this.totalPrice = totalPrice;
+        this.paymentMethod = paymentMethod;
         this.status = status;
         this.createdAt = createdAt;
     }
@@ -28,14 +28,15 @@ public class Order {
     public void setId(String id) { this.id = id; }
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
-    public String getProductId() { return productId; }
-    public void setProductId(String productId) { this.productId = productId; }
-    public String getProductName() { return productName; }
-    public void setProductName(String productName) { this.productName = productName; }
-    public int getQuantity() { return quantity; }
-    public void setQuantity(int quantity) { this.quantity = quantity; }
+    public List<OrderItem> getItems() { return items; }
+    public void setItems(List<OrderItem> items) { this.items = items; }
     public double getTotalPrice() { return totalPrice; }
     public void setTotalPrice(double totalPrice) { this.totalPrice = totalPrice; }
+
+    // Alias para compatibilidade com o frontend (Receipt.jsx usa order.total)
+    public double getTotal() { return totalPrice; }
+    public String getPaymentMethod() { return paymentMethod; }
+    public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
     public long getCreatedAt() { return createdAt; }
