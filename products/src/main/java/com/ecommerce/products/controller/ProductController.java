@@ -153,15 +153,18 @@ public class ProductController {
             }
 
             productService.delete(id);
-            return ResponseEntity.noContent().build(); // 204
+            return ResponseEntity.noContent().build();
 
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Token inválido ou expirado"));
         }
     }
 
     /**
-     * Endpoint interno usado pelo serviço de Orders para decrementar estoque após pedido confirmado.
+     * Endpoint interno usado pelo serviço de Orders para decrementar estoque.
+     * Usa update() para garantir replicação.
      */
     @PostMapping("/internal/products/{id}/decrement-stock")
     public ResponseEntity<?> decrementStock(
@@ -173,12 +176,19 @@ public class ProductController {
             if (opt.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Produto não encontrado"));
             }
+
             Product product = opt.get();
-            int newStock = product.getStock() - quantity;
-            if (newStock < 0) newStock = 0;
-            product.setStock(newStock);
-            productService.saveReplicated(product); // salva localmente e replica
-            return ResponseEntity.ok(Map.of("status", "ok", "newStock", newStock));
+            int newStock = Math.max(0, product.getStock() - quantity);
+
+            Product updated = productService.update(
+                    id, product.getName(), product.getDescription(),
+                    product.getPrice(), newStock, product.getImageUrl()
+            );
+
+            return ResponseEntity.ok(Map.of("status", "ok", "newStock", updated.getStock()));
+
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Falha ao decrementar estoque: " + e.getMessage()));
@@ -186,8 +196,8 @@ public class ProductController {
     }
 
     /**
-     * Endpoint interno usado apenas pela replicação entre réplicas.
-     * Não requer JWT — comunicação interna entre instâncias do mesmo serviço.
+     * Endpoint interno de replicação — recebe produto criado/atualizado pela primária.
+     * Não requer JWT.
      */
     @PostMapping("/internal/products/replicate")
     public ResponseEntity<?> replicateProduct(@RequestBody Product product) {
@@ -197,6 +207,25 @@ public class ProductController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Falha na replicação: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Endpoint interno de replicação — recebe exclusão propagada pela primária.
+     * Não requer JWT.
+     */
+    @DeleteMapping("/internal/products/{id}")
+    public ResponseEntity<?> replicateDelete(@PathVariable String id) {
+        try {
+            if (productService.findById(id).isEmpty()) {
+                // Já não existe — idempotente, considera sucesso
+                return ResponseEntity.ok(Map.of("status", "not_found_but_ok", "id", id));
+            }
+            productService.deleteLocal(id);
+            return ResponseEntity.ok(Map.of("status", "deleted", "id", id));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Falha na replicação do delete: " + e.getMessage()));
         }
     }
 }

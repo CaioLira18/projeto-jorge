@@ -21,6 +21,7 @@ services:
       - "5002:5002"
     environment:
       - SERVER_PORT=5002
+      - DATA_FILE_SUFFIX=5002
       - JWT_SECRET=minha-chave-secreta-super-segura-para-jwt-2024
       - REPLICA_URL=http://products-replica:5012
       - REPLICA_ENABLED=true
@@ -40,6 +41,7 @@ services:
       - "5012:5012"
     environment:
       - SERVER_PORT=5012
+      - DATA_FILE_SUFFIX=5012   # ← adicionar isso
       - JWT_SECRET=minha-chave-secreta-super-segura-para-jwt-2024
       - REPLICA_URL=http://products-primary:5002
       - REPLICA_ENABLED=false

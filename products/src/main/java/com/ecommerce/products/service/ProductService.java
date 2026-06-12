@@ -29,28 +29,21 @@ public class ProductService {
     }
 
     /**
-     * Cria produto com consistência forte:
-     * salva localmente E propaga à réplica antes de confirmar.
+     * Cria produto com consistência forte.
+     * Se a replicação falhar, faz rollback local.
      */
     public Product create(String name, String description, double price, int stock, String imageUrl) {
-        if (!replication.isReplicaAvailable()) {
-            throw new IllegalStateException("Réplica indisponível — escrita rejeitada para manter consistência");
-        }
-
         Product product = new Product(
                 UUID.randomUUID().toString(),
-                name,
-                description,
-                price,
-                stock,
-                System.currentTimeMillis(),
-                imageUrl
+                name, description, price, stock,
+                System.currentTimeMillis(), imageUrl
         );
 
         repository.save(product);
 
         boolean replicated = replication.replicateWrite(product);
         if (!replicated) {
+            repository.deleteById(product.getId()); // rollback
             throw new IllegalStateException("Falha na replicação — operação cancelada");
         }
 
@@ -58,15 +51,18 @@ public class ProductService {
     }
 
     /**
-     * Atualiza produto existente e propaga à réplica.
+     * Atualiza produto e propaga à réplica.
+     * Se a replicação falhar, faz rollback restaurando o snapshot anterior.
      */
     public Product update(String id, String name, String description, double price, int stock, String imageUrl) {
         Product product = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
 
-        if (!replication.isReplicaAvailable()) {
-            throw new IllegalStateException("Réplica indisponível — escrita rejeitada para manter consistência");
-        }
+        // Snapshot para rollback
+        Product snapshot = new Product(
+                product.getId(), product.getName(), product.getDescription(),
+                product.getPrice(), product.getStock(), product.getCreatedAt(), product.getImageUrl()
+        );
 
         product.setName(name);
         product.setDescription(description);
@@ -78,6 +74,7 @@ public class ProductService {
 
         boolean replicated = replication.replicateWrite(product);
         if (!replicated) {
+            repository.save(snapshot); // rollback
             throw new IllegalStateException("Falha na replicação — operação cancelada");
         }
 
@@ -85,19 +82,23 @@ public class ProductService {
     }
 
     /**
-     * Remove produto e propaga exclusão à réplica.
+     * Remove produto propagando exclusão à réplica ANTES de apagar localmente.
+     * Garante que, se a réplica falhar, o dado ainda existe na primária.
      */
     public void delete(String id) {
-        if (!replication.isReplicaAvailable()) {
-            throw new IllegalStateException("Réplica indisponível — escrita rejeitada para manter consistência");
-        }
-
-        repository.deleteById(id);
-
         boolean replicated = replication.replicateDelete(id);
         if (!replicated) {
-            throw new IllegalStateException("Falha na replicação da exclusão — verifique consistência manualmente");
+            throw new IllegalStateException("Réplica indisponível — delete cancelado para manter consistência");
         }
+        repository.deleteById(id);
+    }
+
+    /**
+     * Apaga produto apenas localmente, sem propagar.
+     * Usado pelo endpoint interno de replicação de delete.
+     */
+    public void deleteLocal(String id) {
+        repository.deleteById(id);
     }
 
     /**
