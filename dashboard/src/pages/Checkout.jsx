@@ -21,15 +21,16 @@ export default function Checkout() {
 
   const [payment, setPayment] = useState('pix')
   const [loading, setLoading] = useState(false)
+  // Evita redirect para home após o pedido ser confirmado e o carrinho limpo
+  const confirmed = React.useRef(false)
 
-  // ✅ CORRIGIDO: navegação dentro do useEffect, não durante o render
   useEffect(() => {
-    if (items.length === 0) {
+    if (!confirmed.current && items.length === 0) {
       nav('/')
     }
   }, [items.length])
 
-  if (items.length === 0) return null
+  if (!confirmed.current && items.length === 0) return null
 
   const handleConfirm = async () => {
     setLoading(true)
@@ -39,9 +40,12 @@ export default function Checkout() {
         paymentMethod: payment,
       }
       const result = await api.createOrder(body, user.token)
-      nav(`/receipt/${result.id}`)
-      toast('Pedido realizado com sucesso!')
+      // ✅ clear() ANTES do nav() para não disparar o redirect do useEffect
+      //    enquanto ainda estamos na rota /checkout
+      confirmed.current = true
       clear()
+      toast('Pedido realizado com sucesso!')
+      nav(`/receipt/${result.id}`)
     } catch (err) {
       toast(err.message || 'Erro ao finalizar pedido', 'error')
     } finally {

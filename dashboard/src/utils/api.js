@@ -28,6 +28,7 @@ export const api = {
   deleteProduct: (id, tok)       => req('DELETE', `/products/${id}`, null, tok),
 
   createOrder:  (body, tok)  => req('POST', '/orders', body, tok),
+  getOrder:     (id, tok)    => req('GET', `/orders/detail/${id}`, null, tok),
   getOrders:    (uid, tok)   => req('GET', `/orders/${uid}`, null, tok),
 
   getStatus: ()              => req('GET', '/status'),

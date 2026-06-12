@@ -1,5 +1,7 @@
 package com.ecommerce.products.model;
 
+import com.ecommerce.products.model.enums.Category;
+
 public class Product {
     private String id;
     private String name;
@@ -8,10 +10,11 @@ public class Product {
     private String imageUrl;
     private int stock;
     private long createdAt;
+    private Category category;
 
     public Product() {}
 
-    public Product(String id, String name, String description, double price, int stock, long createdAt, String imageUrl) {
+    public Product(String id, String name, String description, double price, int stock, long createdAt, String imageUrl, Category category) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -19,6 +22,7 @@ public class Product {
         this.stock = stock;
         this.createdAt = createdAt;
         this.imageUrl = imageUrl;
+        this.category = category;
     }
 
     public String getId() { return id; }
@@ -41,5 +45,15 @@ public class Product {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    
     
 }

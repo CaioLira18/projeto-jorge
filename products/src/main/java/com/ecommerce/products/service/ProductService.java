@@ -1,6 +1,7 @@
 package com.ecommerce.products.service;
 
 import com.ecommerce.products.model.Product;
+import com.ecommerce.products.model.enums.Category;
 import com.ecommerce.products.replication.ReplicationService;
 import com.ecommerce.products.repository.ProductRepository;
 import org.springframework.stereotype.Service;
@@ -28,17 +29,18 @@ public class ProductService {
         return repository.findById(id);
     }
 
+
+
     /**
      * Cria produto com consistência forte.
      * Se a replicação falhar, faz rollback local.
      */
-    public Product create(String name, String description, double price, int stock, String imageUrl) {
+    public Product create(String name, String description, double price, int stock, String imageUrl, Category category) {
         Product product = new Product(
                 UUID.randomUUID().toString(),
                 name, description, price, stock,
-                System.currentTimeMillis(), imageUrl
+                System.currentTimeMillis(), imageUrl, category
         );
-
         repository.save(product);
 
         boolean replicated = replication.replicateWrite(product);
@@ -54,14 +56,14 @@ public class ProductService {
      * Atualiza produto e propaga à réplica.
      * Se a replicação falhar, faz rollback restaurando o snapshot anterior.
      */
-    public Product update(String id, String name, String description, double price, int stock, String imageUrl) {
+    public Product update(String id, String name, String description, double price, int stock, String imageUrl, Category category) {
         Product product = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
 
         // Snapshot para rollback
         Product snapshot = new Product(
                 product.getId(), product.getName(), product.getDescription(),
-                product.getPrice(), product.getStock(), product.getCreatedAt(), product.getImageUrl()
+                product.getPrice(), product.getStock(), product.getCreatedAt(), product.getImageUrl(), product.getCategory()
         );
 
         product.setName(name);
@@ -69,6 +71,7 @@ public class ProductService {
         product.setPrice(price);
         product.setStock(stock);
         product.setImageUrl(imageUrl);
+        product.setCategory(category);
 
         repository.save(product);
 

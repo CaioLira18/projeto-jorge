@@ -5,6 +5,8 @@ import { useCart, useToast } from './Index'
 
 const EMOJI = ['📦', '💻', '📱', '👟', '🎧', '📚', '⌚', '🎮']
 
+const CATEGORIES = ['CONSOLES', 'GAMES', 'BOOKS', 'ACCESSORIES', 'GPU', 'CPU', 'MONITOR', 'MOUSE', 'KEYBOARD', 'HEADPHONES']
+
 const PAGE_SIZE = 20
 
 export default function Products() {
@@ -13,6 +15,7 @@ export default function Products() {
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState('default')
   const [onlyInStock, setOnlyInStock] = useState(false)
+  const [category, setCategory] = useState('')
   const [page, setPage] = useState(1)
   const { add, setOpen } = useCart()
   const toast = useToast()
@@ -25,7 +28,7 @@ export default function Products() {
   }, [])
 
   // reset page when filters change
-  useEffect(() => { setPage(1) }, [search, sort, onlyInStock])
+  useEffect(() => { setPage(1) }, [search, sort, onlyInStock, category])
 
   const handleAdd = (p, e) => {
     e.preventDefault()
@@ -40,7 +43,8 @@ export default function Products() {
       const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
         (p.description || '').toLowerCase().includes(search.toLowerCase())
       const matchStock = onlyInStock ? p.stock > 0 : true
-      return matchSearch && matchStock
+      const matchCategory = !category || p.category === category
+      return matchSearch && matchStock && matchCategory
     })
     .sort((a, b) => {
       if (sort === 'price-asc') return a.price - b.price
@@ -57,34 +61,37 @@ export default function Products() {
       <div className="container">
 
         {/* Header */}
-        <div style={{ marginBottom: 32 }}>
-          <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 4 }}>Todos os produtos</h1>
-          <p className="text-muted" style={{ fontSize: 14 }}>
+        <div className="products-header">
+          <h1 className="products-title">Todos os produtos</h1>
+          <p className="products-subtitle text-muted">
             {loading ? '...' : `${filtered.length} produto${filtered.length !== 1 ? 's' : ''} encontrado${filtered.length !== 1 ? 's' : ''}`}
           </p>
         </div>
 
         {/* Toolbar */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 28, alignItems: 'center' }}>
+        <div className="products-toolbar">
           <input
+            className="products-search"
             placeholder="Buscar produtos..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            style={{ flex: '1 1 240px', maxWidth: 360 }}
           />
 
           <select
+            className="products-select"
+            value={category}
+            onChange={e => setCategory(e.target.value)}
+          >
+            <option value="">Todas as categorias</option>
+            {CATEGORIES.map(c => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+
+          <select
+            className="products-select"
             value={sort}
             onChange={e => setSort(e.target.value)}
-            style={{
-              padding: '8px 12px',
-              borderRadius: 8,
-              border: '1px solid var(--border, #e2e8f0)',
-              background: 'var(--card, #fff)',
-              color: 'var(--text, #1a202c)',
-              fontSize: 14,
-              cursor: 'pointer'
-            }}
           >
             <option value="default">Ordenar: padrão</option>
             <option value="price-asc">Menor preço</option>
@@ -92,12 +99,11 @@ export default function Products() {
             <option value="name">Nome A-Z</option>
           </select>
 
-          <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 14, cursor: 'pointer', userSelect: 'none' }}>
+          <label className="products-check">
             <input
               type="checkbox"
               checked={onlyInStock}
               onChange={e => setOnlyInStock(e.target.checked)}
-              style={{ width: 16, height: 16, cursor: 'pointer' }}
             />
             Apenas em estoque
           </label>
@@ -116,7 +122,7 @@ export default function Products() {
               <button
                 className="btn btn-primary btn-sm"
                 style={{ marginTop: 12 }}
-                onClick={() => { setSearch(''); setOnlyInStock(false) }}
+                onClick={() => { setSearch(''); setOnlyInStock(false); setCategory('') }}
               >
                 Limpar filtros
               </button>
@@ -126,30 +132,28 @@ export default function Products() {
           <>
             <div className="grid-4">
               {paginated.map((p, i) => (
-                <Link to={`/produtos/${p.id}`} className="product-card" key={p.id} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+                <Link to={`/produtos/${p.id}`} className="product-card" key={p.id}>
                   <div className="product-img">
-                    {p.imageUrl
-                      ? <img
-                          src={p.imageUrl}
-                          alt={p.name}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }}
-                          onError={e => {
-                            e.currentTarget.style.display = 'none'
-                            e.currentTarget.nextSibling.style.display = 'flex'
-                          }}
-                        />
-                      : null}
-                    <span style={{
-                      display: p.imageUrl ? 'none' : 'flex',
-                      alignItems: 'center', justifyContent: 'center',
-                      width: '100%', height: '100%', fontSize: 32
-                    }}>
+                    {p.imageUrl && (
+                      <img
+                        src={p.imageUrl}
+                        alt={p.name}
+                        onError={e => {
+                          e.currentTarget.style.display = 'none'
+                          e.currentTarget.nextSibling.style.display = 'flex'
+                        }}
+                      />
+                    )}
+                    <span
+                      className="product-img-fallback"
+                      style={{ display: p.imageUrl ? 'none' : 'flex' }}
+                    >
                       {EMOJI[i % EMOJI.length]}
                     </span>
                   </div>
                   <div className="product-info">
                     <div className="product-name">{p.name}</div>
-                    <div className="text-muted" style={{ fontSize: 13, marginTop: 2, marginBottom: 8 }}>
+                    <div className="product-desc text-muted">
                       {p.description || 'Sem descrição'}
                     </div>
                     <div className="product-price">R$ {p.price?.toFixed(2)}</div>
@@ -159,8 +163,7 @@ export default function Products() {
                         : <span className="text-danger">Sem estoque</span>}
                     </div>
                     <button
-                      className="btn btn-primary btn-sm w-full"
-                      style={{ marginTop: 12 }}
+                      className="btn btn-primary btn-sm w-full product-card-btn"
                       disabled={p.stock === 0}
                       onClick={e => handleAdd(p, e)}
                     >

@@ -80,8 +80,8 @@ public class GatewayController {
 
     @PutMapping("/products/{id}")
     public ResponseEntity<String> updateProduct(@PathVariable String id,
-                                                @RequestBody(required = false) String body,
-                                                HttpServletRequest req) {
+            @RequestBody(required = false) String body,
+            HttpServletRequest req) {
         // Escrita sempre vai para a primária (que replica para a secundária)
         return proxyService.proxyProductsWrite("/products/" + id, HttpMethod.PUT, body, req);
     }
@@ -96,6 +96,11 @@ public class GatewayController {
     @PostMapping("/orders")
     public ResponseEntity<String> createOrder(@RequestBody(required = false) String body, HttpServletRequest req) {
         return proxyService.proxyOrders("/orders", HttpMethod.POST, body, req);
+    }
+
+    @GetMapping("/orders/detail/{orderId}")
+    public ResponseEntity<String> getOrderById(@PathVariable String orderId, HttpServletRequest req) {
+        return proxyService.proxyOrders("/orders/detail/" + orderId, HttpMethod.GET, null, req);
     }
 
     @GetMapping("/orders/{userId}")

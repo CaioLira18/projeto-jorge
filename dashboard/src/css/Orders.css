@@ -1,0 +1,237 @@
+/* ─── Orders Page ─────────────────────────────────────────────────────────── */
+
+.orders-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 42px;
+  flex-wrap: wrap;
+}
+
+.orders-title {
+  font-size: 28px;
+}
+
+.orders-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 80px 0;
+  text-align: center;
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+/* ─── Order Card ──────────────────────────────────────────────────────────── */
+
+.ocard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.ocard:hover {
+  border-color: #3a3a48;
+}
+
+.ocard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  cursor: pointer;
+  gap: 12px;
+  flex-wrap: wrap;
+  user-select: none;
+}
+
+.ocard-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.ocard-id {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ocard-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.ocard-num {
+  font-size: 14px;
+  font-weight: 700;
+  font-family: monospace;
+  color: var(--text);
+}
+
+.ocard-date {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.ocard-right {
+  display: flex;
+  align-items: center; /* Alinha verticalmente */
+  gap: 16px;
+  flex-wrap: nowrap;   /* Alterado de wrap para nowrap */
+}
+
+/* Garante que o badge não seja comprimido */
+.ocard-right > span {
+  flex-shrink: 0;
+}
+
+.ocard-total {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.ocard-chevron {
+  color: var(--muted);
+  font-size: 14px;
+  transition: transform 0.2s;
+  line-height: 1;
+}
+
+/* ─── Card Body ───────────────────────────────────────────────────────────── */
+
+.ocard-body {
+  border-top: 1px solid var(--border);
+  background: var(--surface2);
+}
+
+.ocard-body-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+}
+
+@media (max-width: 600px) {
+  .ocard-body-inner {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ocard-section {
+  padding: 20px;
+  border-right: 1px solid var(--border);
+}
+
+.ocard-section:last-child {
+  border-right: none;
+}
+
+@media (max-width: 600px) {
+  .ocard-section {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ocard-section:last-child {
+    border-bottom: none;
+  }
+}
+
+.ocard-section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+/* ─── Items ───────────────────────────────────────────────────────────────── */
+
+.ocard-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ocard-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.ocard-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.ocard-item-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  text-decoration: none;
+  line-height: 1.4;
+}
+
+.ocard-item-name:hover {
+  color: var(--accent);
+}
+
+.ocard-item-qty {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.ocard-item-price {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+/* ─── Summary ─────────────────────────────────────────────────────────────── */
+
+.ocard-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ocard-summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.ocard-summary-divider {
+  border-top: 1px solid var(--border);
+  margin: 4px 0;
+}
+
+.ocard-summary-total {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}

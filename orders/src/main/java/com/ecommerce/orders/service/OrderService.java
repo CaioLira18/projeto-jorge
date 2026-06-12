@@ -121,4 +121,8 @@ public class OrderService {
     public List<Order> findByUserId(String userId) {
         return repository.findByUserId(userId);
     }
+
+    public java.util.Optional<Order> findById(String orderId) {
+        return repository.findById(orderId);
+    }    
 }

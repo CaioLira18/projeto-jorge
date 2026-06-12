@@ -1,6 +1,7 @@
 package com.ecommerce.products.controller;
 
 import com.ecommerce.products.model.Product;
+import com.ecommerce.products.model.enums.Category;
 import com.ecommerce.products.security.JwtService;
 import com.ecommerce.products.service.ProductService;
 import io.jsonwebtoken.Claims;
@@ -70,12 +71,14 @@ public class ProductController {
             double price = ((Number) body.get("price")).doubleValue();
             int stock = ((Number) body.getOrDefault("stock", 0)).intValue();
             String imageUrl = (String) body.getOrDefault("imageUrl", "");
+            String categoryStr = (String) body.getOrDefault("category", "");
+            Category category = Category.valueOf(categoryStr.toUpperCase());
 
             if (name == null || body.get("price") == null) {
                 return ResponseEntity.badRequest().body(Map.of("error", "name e price são obrigatórios"));
             }
 
-            Product product = productService.create(name, description, price, stock, imageUrl);
+            Product product = productService.create(name, description, price, stock, imageUrl, category);
             return ResponseEntity.status(HttpStatus.CREATED).body(product);
 
         } catch (IllegalStateException e) {
@@ -114,12 +117,12 @@ public class ProductController {
             double price = ((Number) body.get("price")).doubleValue();
             int stock = ((Number) body.getOrDefault("stock", 0)).intValue();
             String imageUrl = (String) body.getOrDefault("imageUrl", "");
-
+            Category category = Category.valueOf((String) body.getOrDefault("category", "OTHER"));
             if (name == null || body.get("price") == null) {
                 return ResponseEntity.badRequest().body(Map.of("error", "name e price são obrigatórios"));
             }
 
-            Product updated = productService.update(id, name, description, price, stock, imageUrl);
+            Product updated = productService.update(id, name, description, price, stock, imageUrl, category);
             return ResponseEntity.ok(updated);
 
         } catch (IllegalStateException e) {
@@ -180,9 +183,11 @@ public class ProductController {
             Product product = opt.get();
             int newStock = Math.max(0, product.getStock() - quantity);
 
+            Category category = product.getCategory(); // Preserve the existing category
+
             Product updated = productService.update(
                     id, product.getName(), product.getDescription(),
-                    product.getPrice(), newStock, product.getImageUrl()
+                    product.getPrice(), newStock, product.getImageUrl(), category
             );
 
             return ResponseEntity.ok(Map.of("status", "ok", "newStock", updated.getStock()));

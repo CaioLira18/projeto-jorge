@@ -2,7 +2,12 @@ import React, { useEffect, useState, useCallback } from 'react'
 import { useAuth, useToast } from '../Index'
 import { api } from '../../utils/api'
 
-const EMPTY_FORM = { name: '', description: '', price: '', stock: '', imageUrl: '' }
+const CATEGORIES = [
+  'CONSOLES', 'GAMES', 'BOOKS', 'ACCESSORIES',
+  'GPU', 'CPU', 'MONITOR', 'MOUSE', 'KEYBOARD', 'HEADPHONES',
+]
+
+const EMPTY_FORM = { name: '', description: '', price: '', stock: '', imageUrl: '', category: '' }
 
 const stockStatus = (stock) => {
   if (stock === 0) return { label: 'Sem estoque', cls: 'crud-badge--out' }
@@ -49,7 +54,7 @@ export default function ProductCRUD() {
 
   const openEdit = (p) => {
     setEditId(p.id)
-    setForm({ name: p.name, description: p.description || '', price: p.price, stock: p.stock, imageUrl: p.imageUrl || '' })
+    setForm({ name: p.name, description: p.description || '', price: p.price, stock: p.stock, imageUrl: p.imageUrl || '', category: p.category || '' })
     setFormError('')
     setModal(true)
   }
@@ -65,8 +70,8 @@ export default function ProductCRUD() {
 
   const handleSave = async (e) => {
     e.preventDefault()
-    if (!form.name.trim() || form.price === '') {
-      setFormError('Nome e preço são obrigatórios')
+    if (!form.name.trim() || form.price === '' || !form.category) {
+      setFormError('Nome, preço e categoria são obrigatórios')
       return
     }
     setSaving(true)
@@ -78,6 +83,7 @@ export default function ProductCRUD() {
         price: parseFloat(form.price),
         stock: parseInt(form.stock) || 0,
         imageUrl: form.imageUrl.trim(),
+        category: form.category,
       }
       const tok = user?.token || ''
       if (editId) {
@@ -111,7 +117,8 @@ export default function ProductCRUD() {
 
   const filtered = products.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
-    (p.description || '').toLowerCase().includes(search.toLowerCase())
+    (p.description || '').toLowerCase().includes(search.toLowerCase()) ||
+    (p.category || '').toLowerCase().includes(search.toLowerCase())
   )
 
   const statLow = products.filter(p => p.stock > 0 && p.stock <= 5).length
@@ -162,6 +169,7 @@ export default function ProductCRUD() {
                 <th>Imagem</th>
                 <th>Nome</th>
                 <th>Descrição</th>
+                <th>Categoria</th>
                 <th>Preço</th>
                 <th>Estoque</th>
                 <th>Status</th>
@@ -180,6 +188,7 @@ export default function ProductCRUD() {
                     </td>
                     <td className="crud-td--name">{p.name}</td>
                     <td>{p.description}</td>
+                    <td>{p.category || '—'}</td>
                     <td>R$ {parseFloat(p.price).toFixed(2)}</td>
                     <td>{p.stock}</td>
                     <td><span className={`crud-badge ${cls}`}>{label}</span></td>
@@ -219,6 +228,15 @@ export default function ProductCRUD() {
               <div className="crud-field">
                 <label className="crud-label">URL da imagem</label>
                 <input className="crud-input" name="imageUrl" value={form.imageUrl} onChange={handleChange} placeholder="https://..." />
+              </div>
+              <div className="crud-field">
+                <label className="crud-label">Categoria *</label>
+                <select className="crud-input" name="category" value={form.category} onChange={handleChange}>
+                  <option value="">Selecione uma categoria</option>
+                  {CATEGORIES.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
               </div>
               <div className="crud-field-row">
                 <div className="crud-field">

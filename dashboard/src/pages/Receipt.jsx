@@ -19,11 +19,9 @@ export default function Receipt() {
 
   useEffect(() => {
     if (!user) { nav('/login'); return }
-    api.getOrders(user.id, user.token)
-      .then(orders => {
-        const found = orders.find(o => String(o.id) === String(orderId))
-        setOrder(found || null)
-      })
+    api.getOrder(orderId, user.token)
+      .then(order => setOrder(order || null))
+      .catch(() => setOrder(null))
       .finally(() => setLoading(false))
   }, [orderId, user])
 
@@ -54,7 +52,7 @@ export default function Receipt() {
 
   return (
     <div className="page">
-      <div className="container" style={{ maxWidth: 480 }}>
+      <div className="container" style={{ maxWidth: 480, marginTop: 40 }}>
         <div className="card" style={{ textAlign: 'center', marginBottom: 24 }}>
           <div style={{ fontSize: 48, marginBottom: 8 }}>✅</div>
           <h2 style={{ marginBottom: 4 }}>Pedido confirmado!</h2>
@@ -68,7 +66,7 @@ export default function Receipt() {
           {(order.items || []).map((item, idx) => (
             <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10, fontSize: 14 }}>
               <span>
-                {item.quantity}x {item.name || item.productId}
+                {item.quantity}x {item.productName || item.productId}
               </span>
               <span style={{ fontWeight: 600 }}>
                 R$ {(item.price * item.quantity).toFixed(2)}
@@ -100,7 +98,7 @@ export default function Receipt() {
         </div>
 
         <div style={{ display: 'flex', gap: 12 }}>
-          <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => nav('/orders')}>
+          <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => nav(`/orders/${user.userId}`)}>
             Meus pedidos
           </button>
           <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => nav('/')}>

@@ -62,6 +62,30 @@ public class OrderController {
         }
     }
 
+    @GetMapping("/orders/detail/{orderId}")
+    public ResponseEntity<?> getOrderById(
+            @PathVariable String orderId,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+
+        Claims claims = extractClaims(authHeader);
+        if (claims == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Token JWT obrigatório"));
+        }
+
+        String requesterId = claims.getSubject();
+        String role = (String) claims.get("role");
+
+        return orderService.findById(orderId)
+                .map(order -> {
+                    if (!order.getUserId().equals(requesterId) && !"admin".equals(role)) {
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                                .body((Object) Map.of("error", "Acesso negado"));
+                    }
+                    return ResponseEntity.ok((Object) order);
+                })
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Pedido não encontrado")));
+    }
+
     @GetMapping("/orders/{userId}")
     public ResponseEntity<?> getUserOrders(
             @PathVariable String userId,
@@ -84,7 +108,8 @@ public class OrderController {
     }
 
     private Claims extractClaims(String authHeader) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) return null;
+        if (authHeader == null || !authHeader.startsWith("Bearer "))
+            return null;
         try {
             return jwtService.validateToken(authHeader.substring(7));
         } catch (Exception e) {

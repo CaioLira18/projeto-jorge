@@ -26,11 +26,19 @@ public class OrderRepository {
         return f;
     }
 
+    public java.util.Optional<Order> findById(String orderId) {
+        return findAll().stream()
+                .filter(o -> o.getId().equals(orderId))
+                .findFirst();
+    }
+
     public synchronized List<Order> findAll() {
         File f = getFile();
-        if (!f.exists()) return new ArrayList<>();
+        if (!f.exists())
+            return new ArrayList<>();
         try {
-            return mapper.readValue(f, new TypeReference<List<Order>>() {});
+            return mapper.readValue(f, new TypeReference<List<Order>>() {
+            });
         } catch (IOException e) {
             return new ArrayList<>();
         }
