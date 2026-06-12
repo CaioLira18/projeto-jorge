@@ -1,7 +1,9 @@
 package com.ecommerce.orders.model;
 
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Order {
     private String id;
     private String userId;

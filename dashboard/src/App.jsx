@@ -7,6 +7,9 @@ import ProductCRUD from './pages/Admin/ProductCRUD'
 import Cart from './pages/Cart'
 import Checkout from './pages/Checkout'
 import Receipt from './pages/Receipt'
+import Products from './pages/Products'
+import ProductDetail from './pages/ProductDetail'
+import Orders from './pages/Orders'
 
 function App() {
   return (
@@ -20,7 +23,9 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/receipt/:orderId" element={<Receipt />} />
-
+        <Route path="/produtos" element={<Products />} />
+        <Route path="/produtos/:id" element={<ProductDetail />} />
+        <Route path="/orders/:id" element={<Orders />} />
       </Routes>
     </div>
   )
