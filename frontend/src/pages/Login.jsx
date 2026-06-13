@@ -31,7 +31,7 @@ export default function Login() {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-brand">
-          <Link to="/" className="auth-logo">Loja</Link>
+          <img className="nav-logo-img" style={{width: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', 'margin': '0 auto'}} src="https://res.cloudinary.com/dmf7ocduw/image/upload/v1781371590/logo_a06hef.png" alt="" />
         </div>
 
         <div className="auth-header">

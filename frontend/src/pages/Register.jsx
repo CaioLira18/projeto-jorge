@@ -38,7 +38,7 @@ export default function Register() {
     <div className="reg-page">
       <div className="reg-card">
         <div className="reg-brand">
-          <Link to="/" className="reg-logo">Loja</Link>
+          <img className="nav-logo-img" style={{width: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', 'margin': '0 auto'}} src="https://res.cloudinary.com/dmf7ocduw/image/upload/v1781371590/logo_a06hef.png" alt="" />
         </div>
 
         <div className="reg-header">
