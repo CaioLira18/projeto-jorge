@@ -87,19 +87,7 @@ docker compose down -v
   
 ## Usuários para teste
 
-Crie os usuários abaixo via curl após subir os serviços:
-
-```bash
-# Administrador
-curl -X POST http://localhost:5000/users/register \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Admin","email":"admin@admin.com","password":"admin12345","role":"admin"}'
-
-# Usuário comum
-curl -X POST http://localhost:5000/users/register \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Usuario","email":"usuario@usuario.com","password":"usuario123","role":"user"}'
-```
+Use os usuários abaixo após subir os serviços:
 
 | Perfil | E-mail | Senha | Acesso |
 |---|---|---|---|
