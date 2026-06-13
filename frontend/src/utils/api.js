@@ -30,6 +30,7 @@ export const api = {
   createOrder:  (body, tok)  => req('POST', '/orders', body, tok),
   getOrder:     (id, tok)    => req('GET', `/orders/detail/${id}`, null, tok),
   getOrders:    (uid, tok)   => req('GET', `/orders/${uid}`, null, tok),
+  getAllOrders: (tok) => req('GET', '/orders', null, tok),
 
   getStatus: ()              => req('GET', '/status'),
 }

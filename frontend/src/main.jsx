@@ -8,6 +8,8 @@ import './css/Home.css'
 import './css/Products.css'
 import './css/Orders.css'
 import './css/ProductCRUD.css'
+import './css/AdminDashboard.css'
+import './css/PaginaRestrita.css'
 
 import App from './App'
 import { AuthProvider, CartProvider, ToastProvider } from './pages/Index'

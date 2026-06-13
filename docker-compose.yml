@@ -41,7 +41,7 @@ services:
       - "5012:5012"
     environment:
       - SERVER_PORT=5012
-      - DATA_FILE_SUFFIX=5012   # ← adicionar isso
+      - DATA_FILE_SUFFIX=5012
       - JWT_SECRET=minha-chave-secreta-super-segura-para-jwt-2024
       - REPLICA_URL=http://products-primary:5002
       - REPLICA_ENABLED=false
@@ -84,6 +84,13 @@ services:
       - products-primary
       - products-replica
       - orders
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - gateway
 
 volumes:
   users-data:

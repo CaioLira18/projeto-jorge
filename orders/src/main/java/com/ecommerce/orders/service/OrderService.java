@@ -77,7 +77,8 @@ public class OrderService {
             int stock = ((Number) product.get("stock")).intValue();
 
             if (stock < quantity) {
-                throw new IllegalArgumentException("Estoque insuficiente para " + productName + ". Disponível: " + stock);
+                throw new IllegalArgumentException(
+                        "Estoque insuficiente para " + productName + ". Disponível: " + stock);
             }
 
             orderItems.add(new OrderItem(productId, productName, quantity, price));
@@ -91,10 +92,10 @@ public class OrderService {
                 total,
                 paymentMethod,
                 "CONFIRMED",
-                System.currentTimeMillis()
-        );
+                System.currentTimeMillis());
 
-        log.info("Pedido criado: {} | usuário: {} | {} item(ns) | total: {}", order.getId(), userId, orderItems.size(), total);
+        log.info("Pedido criado: {} | usuário: {} | {} item(ns) | total: {}", order.getId(), userId, orderItems.size(),
+                total);
         Order saved = repository.save(order);
 
         // Decrementa o estoque de cada produto no serviço de Products
@@ -124,5 +125,9 @@ public class OrderService {
 
     public java.util.Optional<Order> findById(String orderId) {
         return repository.findById(orderId);
-    }    
+    }
+
+    public List<Order> findAll() {
+        return repository.findAll();
+    }
 }

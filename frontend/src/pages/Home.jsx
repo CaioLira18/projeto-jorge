@@ -159,7 +159,6 @@ export default function Home() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="home-empty">
-            <span style={{ fontSize: 48 }}>🔍</span>
             <p>Nenhum produto encontrado.</p>
             <button className="btn btn-ghost btn-sm" onClick={() => { setSearch(''); setOnlyStock(false); setCategory('') }}>
               Limpar filtros

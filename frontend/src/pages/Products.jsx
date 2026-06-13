@@ -116,7 +116,6 @@ export default function Products() {
           </div>
         ) : paginated.length === 0 ? (
           <div style={{ textAlign: 'center', padding: 80 }}>
-            <div style={{ fontSize: 48, marginBottom: 12 }}>🔍</div>
             <p className="text-muted">Nenhum produto encontrado.</p>
             {(search || onlyInStock) && (
               <button

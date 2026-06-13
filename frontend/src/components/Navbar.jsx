@@ -34,7 +34,7 @@ function Navbar() {
       <div className="container nav-inner">
 
         {/* Logo */}
-        <Link to="/" className="nav-logo">E-Commerce</Link>
+        <Link to="/" className="nav-logo"><img className="nav-logo-img" style={{width: 120, display: 'flex', alignItems: 'center', justifyContent: 'center'}} src="https://res.cloudinary.com/dmf7ocduw/image/upload/v1781371590/logo_a06hef.png" alt="" /></Link>
 
         {/* Links centrais */}
         <div className="nav-links">

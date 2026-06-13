@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { useAuth, useToast } from '../Index'
 import { api } from '../../utils/api'
+import { PaginaRestrita } from '../PaginaRestrita'
 
 const CATEGORIES = [
   'CONSOLES', 'GAMES', 'BOOKS', 'ACCESSORIES',
@@ -123,6 +124,8 @@ export default function ProductCRUD() {
 
   const statLow = products.filter(p => p.stock > 0 && p.stock <= 5).length
   const statOut = products.filter(p => p.stock === 0).length
+
+  if (user?.role !== 'admin') return <PaginaRestrita />
 
   return (
     <div className="crud-page">

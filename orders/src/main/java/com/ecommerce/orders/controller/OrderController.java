@@ -116,4 +116,18 @@ public class OrderController {
             return null;
         }
     }
+
+    @GetMapping("/orders")
+    public ResponseEntity<?> getAllOrders(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+
+        Claims claims = extractClaims(authHeader);
+        if (claims == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Token JWT obrigatório"));
+
+        if (!"admin".equals(claims.get("role")))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Acesso negado"));
+
+        return ResponseEntity.ok(orderService.findAll());
+    }
 }

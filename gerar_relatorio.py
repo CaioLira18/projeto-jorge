@@ -5,7 +5,9 @@ from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, HRFlowable, Table, TableStyle
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_JUSTIFY
 
-OUTPUT = "/mnt/user-data/outputs/relatorio.pdf"
+import os
+# Salva o arquivo na pasta atual do script
+OUTPUT = os.path.join(os.path.dirname(__file__), "relatorio.pdf")
 
 doc = SimpleDocTemplate(
     OUTPUT,
@@ -174,15 +176,28 @@ story.append(Paragraph(
 story.append(Paragraph("5. Quais limitações a implementação possui em relação a um sistema real de produção?", heading_style))
 
 limitacoes = [
-    ["Limitação", "Impacto", "Solução em Produção"],
-    ["Persistência em JSON", "Sem transações ACID, risco de corrupção em escrita concorrente",
-     "PostgreSQL / MongoDB com transações"],
-    ["JWT sem revogação", "Token roubado válido até expirar (24h)", "Blacklist em Redis ou token rotation"],
-    ["Sem circuit breaker", "Falhas em cascata se um serviço lento bloqueia threads", "Resilience4j / Hystrix"],
-    ["Replicação síncrona simples", "Sem quorum, sem leader election", "Raft / Paxos ou Kafka"],
-    ["Gateway sem autoscaling", "Ponto único de falha", "Kubernetes + múltiplas réplicas do gateway"],
-    ["Sem TLS interno", "Comunicação em texto claro entre serviços", "mTLS com certificados internos"],
-    ["Heartbeat simplificado", "Não detecta degradação parcial (lentidão)", "Prometheus + métricas de latência"],
+    [Paragraph("Limitação", body_style), Paragraph("Impacto", body_style), Paragraph("Solução em Produção", body_style)],
+    [Paragraph("Persistência em JSON", body_style),
+     Paragraph("Sem transações ACID, risco de corrupção em escrita concorrente", body_style),
+     Paragraph("PostgreSQL / MongoDB com transações", body_style)],
+    [Paragraph("JWT sem revogação", body_style),
+     Paragraph("Token roubado válido até expirar (24h)", body_style),
+     Paragraph("Blacklist em Redis ou token rotation", body_style)],
+    [Paragraph("Sem circuit breaker", body_style),
+     Paragraph("Falhas em cascata se um serviço lento bloqueia threads", body_style),
+     Paragraph("Resilience4j / Hystrix", body_style)],
+    [Paragraph("Replicação síncrona simples", body_style),
+     Paragraph("Sem quorum, sem leader election", body_style),
+     Paragraph("Raft / Paxos ou Kafka", body_style)],
+    [Paragraph("Gateway sem autoscaling", body_style),
+     Paragraph("Ponto único de falha", body_style),
+     Paragraph("Kubernetes + múltiplas réplicas do gateway", body_style)],
+    [Paragraph("Sem TLS interno", body_style),
+     Paragraph("Comunicação em texto claro entre serviços", body_style),
+     Paragraph("mTLS com certificados internos", body_style)],
+    [Paragraph("Heartbeat simplificado", body_style),
+     Paragraph("Não detecta degradação parcial (lentidão)", body_style),
+     Paragraph("Prometheus + métricas de latência", body_style)],
 ]
 
 lt = Table(limitacoes, colWidths=[3.5*cm, 6*cm, 6*cm])

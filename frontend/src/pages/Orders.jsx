@@ -196,7 +196,6 @@ export default function Orders() {
           </div>
         ) : orders.length === 0 ? (
           <div className="orders-empty">
-            <span style={{ fontSize: 56 }}>🛍️</span>
             <p style={{ fontSize: 16, fontWeight: 600 }}>Você ainda não fez nenhum pedido</p>
             <p className="text-muted" style={{ fontSize: 14 }}>
               Explore nossos produtos e faça seu primeiro pedido.

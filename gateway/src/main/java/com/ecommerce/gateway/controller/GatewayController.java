@@ -107,4 +107,9 @@ public class GatewayController {
     public ResponseEntity<String> getUserOrders(@PathVariable String userId, HttpServletRequest req) {
         return proxyService.proxyOrders("/orders/" + userId, HttpMethod.GET, null, req);
     }
+
+    @GetMapping("/orders")
+    public ResponseEntity<String> getAllOrders(HttpServletRequest req) {
+        return proxyService.proxyOrders("/orders", HttpMethod.GET, null, req);
+    }
 }

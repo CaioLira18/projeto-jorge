@@ -10,6 +10,7 @@ import Receipt from './pages/Receipt'
 import Products from './pages/Products'
 import ProductDetail from './pages/ProductDetail'
 import Orders from './pages/Orders'
+import AdminDashboard from './pages/Admin/AdminDashboard'
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/admin/produtos" element={<ProductCRUD />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/receipt/:orderId" element={<Receipt />} />
